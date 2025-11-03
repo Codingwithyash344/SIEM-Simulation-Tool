@@ -1,0 +1,45 @@
+How to Use the Project in Kali Linux
+Follow these steps to run and test the SIEM simulation.
+
+Clone and Prepare:
+
+git clone <your-github-repo>
+cd siem-simulation-tool
+Create the logs directory: mkdir logs
+Start ELK Stack:
+
+Run Docker Compose: sudo docker-compose up -d
+Wait 1-2 minutes for services to start. Check status: sudo docker-compose ps
+Verify:
+Elasticsearch: Open http://localhost:9200 in browser (should show cluster info).
+Kibana: Open http://localhost:5601 (login not required if security disabled).
+Generate Logs:
+
+Run the Python script: python3 log_generator.py
+This creates logs/security_logs.log with 100 sample entries.
+Ingest Logs via Logstash:
+
+Logs are automatically ingested as they're written (Logstash monitors the file).
+Check Elasticsearch: curl -X GET "localhost:9200/_cat/indices?v" (should show security-logs-* indices).
+Visualize in Kibana:
+
+Go to http://localhost:5601.
+Create an index pattern: Go to Management > Stack Management > Index Patterns > Create index pattern. Enter security-logs-* and select @timestamp as time field.
+Build a dashboard:
+Go to Analytics > Dashboard > Create dashboard.
+Add visualizations:
+Pie Chart: Severity levels (group by severity).
+Bar Chart: Events by source (group by source).
+Data Table: Recent logs (filter by high severity).
+Map: Geolocation of IPs (if you add geoip filter in Logstash).
+Save the dashboard as "SIEM Overview".
+Example Query: In Discover, search for severity:high to filter alerts.
+Simulate Real-Time Monitoring:
+
+Run python3 log_generator.py again to add more logs.
+Refresh Kibana to see updates.
+Test queries: e.g., Aggregate failed logins by IP.
+Stop and Clean Up:
+
+sudo docker-compose down
+Remove volumes if needed: sudo docker volume rm siem-simulation-tool_esdata
